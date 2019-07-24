@@ -1,5 +1,8 @@
 import Vue from 'vue'
-import { Button, Cascader } from 'element-ui'
+import { Button, Form, FormItem, Input, Message } from 'element-ui'
 
 Vue.use(Button)
-Vue.use(Cascader)
+Vue.use(Form)
+Vue.use(Input)
+Vue.use(FormItem)
+Vue.prototype.$message = Message
