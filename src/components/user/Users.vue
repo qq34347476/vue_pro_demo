@@ -14,6 +14,7 @@
           <div class="grid-content bg-purple">
             <div style="margin-top: 0px;">
               <el-input placeholder="请输入内容"
+                        v-model="search"
                         class="input-with-select">
                 <el-button slot="append"
                            icon="el-icon-search"></el-button>
@@ -23,7 +24,41 @@
         </el-col>
         <el-col :span="10">
           <div class="grid-content bg-purple">
-            <el-button type="info">信息按钮</el-button>
+            <el-button type="info"
+                       @click="dialogFormVisible = true">添加用户</el-button>
+
+            <el-dialog title="收货地址"
+                       :visible.sync="dialogFormVisible">
+              <el-form :model="ruleForm"
+                       :rules="rules"
+                       ref="ruleForms"
+                       label-width="100px">
+                <el-form-item label="用户名"
+                              prop="name">
+                  <el-input v-model="ruleForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="密码"
+                              prop="password">
+                  <el-input v-model="ruleForm.password"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱"
+                              prop="email">
+                  <el-input v-model="ruleForm.email"></el-input>
+                </el-form-item>
+                <el-form-item label="手机"
+                              prop="mobile">
+                  <el-input v-model="ruleForm.mobile"></el-input>
+                </el-form-item>
+
+              </el-form>
+              <div slot="footer"
+                   class="dialog-footer">
+                <el-button @click="closeDialog">取 消</el-button>
+                <el-button type="primary"
+                           @click="addDialog">确 定</el-button>
+              </div>
+            </el-dialog>
+
           </div>
         </el-col>
       </el-row>
@@ -52,10 +87,12 @@
                            label="角色">
           </el-table-column>
           <el-table-column prop="mg_state"
-                           label="状态">
+                           label="状态"
+                           min-width="170">
             <template slot-scope="scope">
               <div>
-                <el-switch v-model="scope.row.mg_state"
+                <el-switch @change="changeUserStatus(scope.row)"
+                           v-model="scope.row.mg_state"
                            inactive-color="#110, 110, 110">
                 </el-switch>
               </div>
@@ -63,7 +100,8 @@
 
           </el-table-column>
           <el-table-column label="操作"
-                           width="180">
+                           width="180"
+                           fixed="right">
 
             <template slot-scope="scope">
               <div>
@@ -110,9 +148,41 @@
 </template>
 
 <script>
+import { isNumber } from 'util'
 export default {
   data() {
     return {
+      ruleForm: {
+        name: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { type: 'email', message: '请按输入正确的邮箱', trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          {
+            min: 11,
+            max: 11,
+            message: '请输入长度为11位的手机号',
+            trigger: 'blur'
+          }
+        ]
+      },
+      dialogFormVisible: false,
+      search: '',
       getListParams: {
         query: '',
         pagenum: 1,
@@ -123,6 +193,14 @@ export default {
     }
   },
   methods: {
+    addDialog() {
+      //写到这里了
+      this.$refs.ruleForms.resetFields()
+    },
+    closeDialog() {
+      this.$refs.ruleForms.resetFields()
+      this.dialogFormVisible = false
+    },
     async getUserList() {
       const { data: res } = await this.$http.get('users', {
         params: this.getListParams
@@ -142,6 +220,12 @@ export default {
       console.log(`当前页: ${val}`)
       this.getListParams.pagenum = val
       this.getUserList()
+    },
+    async changeUserStatus(userInfo) {
+      let uId = Number(userInfo.id)
+      let type = userInfo.mg_state
+
+      const { data: res } = await this.$http.put(`users/${uId}/state/${type}`)
     }
   },
   created() {
