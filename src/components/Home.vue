@@ -2,8 +2,10 @@
   <el-container>
     <el-header>
       <div class="title">
-        <img src="../assets/heima.png"
-             alt="heima">
+        <h1>
+          <router-link to="/home"><img src="../assets/heima.png"
+                 alt="heima"></router-link>
+        </h1>
         <p>黑马后台管理系统</p>
       </div>
       <el-button type="primary"
@@ -17,13 +19,13 @@
         </div>
 
         <el-menu :unique-opened="true"
-                 default-active="2"
-                 class="el-menu-vertical-demo"
+                 :default-active="activePath"
                  background-color="#545c64"
                  text-color="#fff"
                  active-text-color="#ffd04b"
                  :collapse-transition="false"
-                 :collapse="isOpen">
+                 :collapse="isOpen"
+                 router>
           <!-- 一级菜单 -->
           <el-submenu v-for="item in menuList"
                       :key="item.id"
@@ -34,7 +36,7 @@
             </template>
             <el-menu-item v-for="subItem in item.children"
                           :key="subItem.id"
-                          :index="subItem.id + ''">
+                          :index="'/' + subItem.path">
               <template slot="title">
                 <i :class="iconObj[subItem.id]"></i>
                 <span v-cloak>{{subItem.authName}}</span>
@@ -70,7 +72,8 @@ export default {
         '107': 'el-icon-coordinate',
         '146': 'el-icon-coordinate'
       },
-      isOpen: false
+      isOpen: false,
+      activePath: '/welcome'
     }
   },
   methods: {
@@ -80,13 +83,23 @@ export default {
     },
     async getMenuList() {
       const { data: res } = await this.$http.get('/menus')
-      console.log(res)
+      //   console.log(res)
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       this.menuList = res.data
+    },
+    getActivePath() {
+      this.activePath = window.sessionStorage.getItem('activePath')
     }
   },
   created() {
     this.getMenuList()
+    this.getActivePath()
+  },
+  watch: {
+    '$route.path': function(newVal, oldVal) {
+      this.activePath = newVal
+      window.sessionStorage.setItem('activePath', newVal)
+    }
   }
 }
 </script>
