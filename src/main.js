@@ -4,6 +4,7 @@ import router from './router'
 import './plugins/element.js'
 import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
+import TreeTable from 'vue-table-with-tree-grid'
 
 import axios from 'axios'
 // 配置请求的基准URL地址
@@ -19,6 +20,7 @@ axios.interceptors.request.use(
   }
 )
 Vue.prototype.$http = axios
+Vue.component('traeTable', TreeTable)
 
 Vue.config.productionTip = false
 
