@@ -99,6 +99,7 @@
                             placement="top">
                   <el-button type="danger"
                              icon="el-icon-setting"
+                             @click="showUserDialogVisble(scope.row)"
                              size="mini"></el-button>
                 </el-tooltip>
               </div>
@@ -182,11 +183,39 @@
       </span>
     </el-dialog>
 
+    <!-- 分配角色 -->
+    <el-dialog title="分配角色"
+               :visible.sync="userDialogVisible"
+               width="50%">
+      <div>
+        当前的用户: <span>{{ user.username }}</span>
+      </div>
+      <div>
+        当前的角色: <span>{{ user.role_name }}</span>
+      </div>
+      <div>
+        分配新的角色:
+        <el-select v-model="selectId"
+                   placeholder="请选择要分配的角色">
+          <el-option v-for="item in selectList"
+                     :key="item.id"
+                     :label="item.roleName"
+                     :value="item.id"></el-option>
+        </el-select>
+      </div>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="userDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="assigningRoles">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { isNumber } from 'util'
+import { truncate } from 'fs'
 export default {
   data() {
     //自定义邮箱验证规则
@@ -229,16 +258,41 @@ export default {
       },
       dialogFormVisible: false,
       editDialogVisible: false,
+      userDialogVisible: false,
       getListParams: {
         query: '',
         pagenum: 1,
         pagesize: 2
       },
       list: [],
-      total: 1
+      total: 1,
+      user: {},
+      selectList: {},
+      selectId: ''
     }
   },
   methods: {
+    //设置角色
+    async assigningRoles() {
+      if (!this.selectId) return this.$message.error('请选择角色')
+      console.log(this.selectList)
+
+      const { data: res } = await this.$http.put(`users/${this.user.id}/role`, {
+        rid: this.selectId
+      })
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+      this.$message.success(res.meta.msg)
+      this.getUserList()
+      this.userDialogVisible = false
+    },
+    //点击显示分配角色
+    async showUserDialogVisble(val) {
+      this.user = val
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+      this.selectList = res.data
+      this.userDialogVisible = true
+    },
     //删除用户操作
     async deleteUser(id) {
       const result = await this.$confirm(
