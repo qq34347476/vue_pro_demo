@@ -27,7 +27,8 @@
         </el-col>
         <el-col :span="10">
           <div class="grid-content bg-purple">
-            <el-button type="info">添加商品</el-button>
+            <el-button type="info"
+                       @click="showAdd">添加商品</el-button>
           </div>
         </el-col>
       </el-row>
@@ -41,9 +42,10 @@
           </el-table-column>
           <el-table-column prop="goods_name"
                            label="商品名称"
-                           min-width="815">
+                           min-width="700">
           </el-table-column>
-          <el-table-column prop="goods_price"
+          <el-table-column min-width="100"
+                           prop="goods_price"
                            label="商品价格(元)">
           </el-table-column>
           <el-table-column prop="goods_weight"
@@ -51,6 +53,11 @@
           </el-table-column>
           <el-table-column prop="add_time"
                            label="创建时间">
+            <template slot-scope="scope">
+              <div>
+                {{ scope.row.add_time |  dateFormat}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column label="操作"
                            width="180">
@@ -111,6 +118,10 @@ export default {
     }
   },
   methods: {
+    //跳转添加页面
+    showAdd() {
+      this.$router.push('/goods/add')
+    },
     addUser() {
       console.log(1)
     },

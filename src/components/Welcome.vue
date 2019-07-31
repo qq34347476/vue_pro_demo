@@ -1,6 +1,6 @@
 <template>
   <div>
-    welcome
+    <xd-checkedPic></xd-checkedPic>
   </div>
 </template>
 
