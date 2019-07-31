@@ -42,6 +42,30 @@
               <el-table-column prop="date"
                                type="expand"
                                width="48">
+                <template slot-scope="scope">
+                  <div>
+                    <el-tag type="success"
+                            closable
+                            disable-transitions
+                            @close="closeTap(index,scope.row)"
+                            v-for="(item, index) in scope.row.attr_vals"
+                            :key="index">{{ item }}</el-tag>
+                    <!-- 新增小标签 -->
+                    <el-input class="input-new-tag"
+                              v-if="scope.row.inputVisible"
+                              v-model="scope.row.inputValue"
+                              ref="saveTagInput"
+                              size="small"
+                              style="width:120px"
+                              @keyup.enter.native="handleInputConfirm(scope.row)"
+                              @blur="handleInputConfirm(scope.row)">
+                    </el-input>
+                    <el-button v-else
+                               class="button-new-tag"
+                               size="small"
+                               @click="showInput(scope.row)">+ New Tag</el-button>
+                  </div>
+                </template>
               </el-table-column>
               <el-table-column prop="name"
                                type="index"
@@ -80,6 +104,28 @@
               <el-table-column prop="date"
                                type="expand"
                                width="48">
+                <template slot-scope="scope">
+                  <div>
+                    <el-tag type="success"
+                            closable
+                            v-for="(item, index) in scope.row.attr_vals"
+                            :key="index">{{ item }}</el-tag>
+                    <!-- 新增小标签 -->
+                    <el-input class="input-new-tag"
+                              v-if="scope.row.inputVisible"
+                              v-model="scope.row.inputValue"
+                              ref="saveTagInput"
+                              size="small"
+                              style="width:120px"
+                              @keyup.enter.native="handleInputConfirm(scope.row)"
+                              @blur="handleInputConfirm(scope.row)">
+                    </el-input>
+                    <el-button v-else
+                               class="button-new-tag"
+                               size="small"
+                               @click="showInput(scope.row)">+ New Tag</el-button>
+                  </div>
+                </template>
               </el-table-column>
               <el-table-column prop="name"
                                type="index"
@@ -167,6 +213,42 @@ export default {
     }
   },
   methods: {
+    //关闭标签，删除
+    closeTap(i, row) {
+      row.attr_vals.splice(i, 1)
+      this.changeTap(row)
+    },
+    //修改标签
+    async changeTap(row) {
+      const { data: res } = await this.$http.put(
+        `categories/${row.cat_id}/attributes/${row.attr_id}`,
+        {
+          attr_name: row.attr_name,
+          attr_sel: row.attr_sel,
+          attr_vals: row.attr_vals.join(' ')
+        }
+      )
+    },
+    //tag按下
+    async handleInputConfirm(row) {
+      console.log(row)
+      if (!row.inputValue.trim()) {
+        row.inputVisible = false
+        row.inputValue = ''
+      }
+      row.attr_vals.push(row.inputValue)
+      this.changeTap(row)
+      row.inputVisible = false
+      row.inputValue = ''
+    },
+    //tag点击
+    showInput(row) {
+      row.inputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+
     //编辑
     editTab(val) {
       if (this.activeName === 'many') {
@@ -218,12 +300,17 @@ export default {
       if (this.currentCate.length < 3) {
         return (this.currentCate = [])
       }
-      const { data: res } = await this.$http.get(
+      let { data: res } = await this.$http.get(
         `categories/${this.currentCate[2]}/attributes`,
         { params: { sel: this.activeName } }
       )
-      console.log(res)
+      console.log(res, 111)
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
+      res.data.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+        item.inputValue = ''
+        item.inputVisible = false
+      })
       if (this.activeName === 'many') {
         this.manyTabsLists = res.data
       } else {
@@ -250,4 +337,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.el-tag {
+  margin: 10px;
+}
 </style>

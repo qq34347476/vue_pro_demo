@@ -14,9 +14,12 @@
           <div class="grid-content bg-purple">
             <div style="margin-top: 0px;">
               <el-input placeholder="请输入内容"
-                        v-model="search"
+                        clearable
+                        @clear="getGoodsList"
+                        v-model="getListParams.query"
                         class="input-with-select">
                 <el-button slot="append"
+                           @click="getGoodsList"
                            icon="el-icon-search"></el-button>
               </el-input>
             </div>
@@ -24,7 +27,7 @@
         </el-col>
         <el-col :span="10">
           <div class="grid-content bg-purple">
-            <el-button type="info">添加用户</el-button>
+            <el-button type="info">添加商品</el-button>
           </div>
         </el-col>
       </el-row>
@@ -87,6 +90,9 @@
                      background>
       </el-pagination>
     </el-card>
+
+    <!-- 添加商品 -->
+
   </div>
 </template>
 
@@ -95,7 +101,6 @@ import { isNumber } from 'util'
 export default {
   data() {
     return {
-      search: '',
       getListParams: {
         query: '',
         pagenum: 1,
@@ -122,12 +127,12 @@ export default {
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
       this.getListParams.pagesize = val
-      this.getUserList()
+      this.getGoodsList()
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
       this.getListParams.pagenum = val
-      this.getUserList()
+      this.getGoodsList()
     },
     async changeUserStatus(userInfo) {
       let uId = Number(userInfo.id)
