@@ -9,6 +9,9 @@ import TreeTable from 'vue-table-with-tree-grid'
 import axios from 'axios'
 
 import CheckedPic from './components/verification/src/index.js'
+
+// 引入loading
+import { Loading } from 'element-ui'
 Vue.use(CheckedPic)
 
 // 配置请求的基准URL地址

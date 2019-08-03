@@ -10,8 +10,12 @@ import Goods from './components/goods/Goods.vue'
 import Params from './components/goods/Params.vue'
 import Categories from './components/goods/Categories.vue'
 import Orders from './components/orders/Orders.vue'
-import Reports from './components/reports/Reports.vue'
-import Add from './components/goods/add.vue'
+const Reports = () =>
+  import(/* webpackChunkName: "group-foo" */ './components/reports/Reports.vue')
+// import Reports from './components/reports/Reports.vue'
+const Add = () =>
+  import(/* webpackChunkName: "group-foo" */ './components/goods/add.vue')
+// import Add from './components/goods/add.vue'
 
 Vue.use(Router)
 
